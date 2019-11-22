@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyVet.Web.Data;
 using MyVet.Web.Data.Entities;
 using MyVet.Web.Helpers;
 using MyVet.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyVet.Web.Controllers
 {
@@ -24,7 +21,7 @@ namespace MyVet.Web.Controllers
         private readonly IConverterHelper _converterHelper;
         private readonly IImageHelper _imageHelper;
 
-        public OwnersController(DataContext context, 
+        public OwnersController(DataContext context,
             IUserHelper userHelper,
             ICombosHelper combosHelper,
             IConverterHelper converterHelper,
@@ -79,7 +76,7 @@ namespace MyVet.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AddUserViewModel model )
+        public async Task<IActionResult> Create(AddUserViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -121,13 +118,13 @@ namespace MyVet.Web.Controllers
                         ModelState.AddModelError(string.Empty, ex.ToString());
                         return View(model);
                     }
-                    
+
                 }
 
                 ModelState.AddModelError(string.Empty, response.Errors.FirstOrDefault().Description);
 
             }
-               
+
             return View(model);
         }
 
@@ -182,7 +179,6 @@ namespace MyVet.Web.Controllers
             return View(owner);
         }
 
-        // GET: Owners/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -191,25 +187,27 @@ namespace MyVet.Web.Controllers
             }
 
             var owner = await _dataContext.Owners
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(o => o.User)
+                .Include(o => o.Pets)
+                .FirstOrDefaultAsync(o => o.Id == id);
+            
             if (owner == null)
             {
                 return NotFound();
             }
 
-            return View(owner);
-        }
+            if (owner.Pets.Count > 0)
+            {
+                //TODO : Message 
+                return RedirectToAction($"{nameof(Index)}");
+            }
 
-        // POST: Owners/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var owner = await _dataContext.Owners.FindAsync(id);
             _dataContext.Owners.Remove(owner);
             await _dataContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            await _userHelper.DeleteUserAsync(owner.User.Email);
+            return RedirectToAction($"{nameof(Index)}");
         }
+
 
         private bool OwnerExists(int id)
         {
@@ -404,7 +402,7 @@ namespace MyVet.Web.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> DeleteHistory (int? id)
+        public async Task<IActionResult> DeleteHistory(int? id)
         {
             if (id == null)
             {
@@ -414,7 +412,7 @@ namespace MyVet.Web.Controllers
             var history = await _dataContext.Histories
                 .Include(h => h.Pet)
                 .FirstOrDefaultAsync(h => h.Id == id.Value);
-            
+
             if (history == null)
             {
                 return NotFound();
@@ -422,7 +420,7 @@ namespace MyVet.Web.Controllers
 
             _dataContext.Histories.Remove(history);
             await _dataContext.SaveChangesAsync();
-            return RedirectToAction($"{nameof(DetailsPet)}/{history.Pet.Id}"); 
+            return RedirectToAction($"{nameof(DetailsPet)}/{history.Pet.Id}");
         }
 
         public async Task<IActionResult> DeletePet(int? id)
@@ -433,7 +431,7 @@ namespace MyVet.Web.Controllers
             }
 
             var pet = await _dataContext.Pets
-                .Include(p => p.Owner) 
+                .Include(p => p.Owner)
                 .Include(p => p.Histories)
                 .FirstOrDefaultAsync(p => p.Id == id.Value);
 
