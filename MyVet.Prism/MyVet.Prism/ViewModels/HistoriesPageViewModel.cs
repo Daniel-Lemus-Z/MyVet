@@ -11,15 +11,17 @@ namespace MyVet.Prism.ViewModels
 {
     public class HistoriesPageViewModel : ViewModelBase
     {
+        private readonly INavigationService _navigationService;
         private PetResponse _pet;
-        private ObservableCollection<HistoryResponse> _histories;
+        private ObservableCollection<HistoryItemViewModel> _histories;
 
         public HistoriesPageViewModel(INavigationService navigationService) : base (navigationService)
         {
+            _navigationService = navigationService;
             Title = "Histories";
         }
 
-        public ObservableCollection<HistoryResponse> Histories
+        public ObservableCollection<HistoryItemViewModel> Histories
         {
             get => _histories;
 
@@ -41,7 +43,14 @@ namespace MyVet.Prism.ViewModels
             {
                 Pet = parameters.GetValue<PetResponse>("pet");
                 Title = $"Histories of {Pet.Name}";
-                Histories = new ObservableCollection<HistoryResponse>(Pet.Histories);
+                Histories = new ObservableCollection<HistoryItemViewModel>(Pet.Histories.Select(h => new HistoryItemViewModel(_navigationService)
+                {
+                    Date = h.Date,
+                    Description = h.Description,
+                    Id = h.Id,
+                    Remarks = h.Remarks,
+                    ServiceType = h.ServiceType
+                }).ToList());
             }
         }
     }
