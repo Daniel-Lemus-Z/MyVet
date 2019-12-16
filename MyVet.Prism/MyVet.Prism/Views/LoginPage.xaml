@@ -8,34 +8,27 @@
              Title="{Binding Title}">
 
     <ScrollView>
-        <StackLayout
-        Padding="10">
-
-            <Image
+        <AbsoluteLayout>
+            <StackLayout
+                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                AbsoluteLayout.LayoutFlags="All"
+                Padding="10">
+                <Image
                 HeightRequest="230"
                 Source="Logo"/>
-            
-            <Label
+                <Label
             Text="Email"/>
-            <Entry
+                <Entry
             Keyboard="Email"
             Placeholder="Enter your email..."
             Text="{Binding Email}"/>
-            <Label
+                <Label
             Text="Password"/>
-            <Entry
+                <Entry
             IsPassword="True"
             Placeholder="Enter your password..."
             Text="{Binding Password}"/>
-            <busyindicator:SfBusyIndicator  
-                AnimationType="Gear"
-                HorizontalOptions="Center"
-                IsVisible="{Binding IsRunning}"
-                Title="Loading..."
-                VerticalOptions="Center"
-                ViewBoxWidth="80"
-                ViewBoxHeight="80" />
-            <Button
+                <Button
                 BorderRadius="23"
                 BackgroundColor="Navy"
                 IsEnabled="{Binding IsEnable}"
@@ -44,8 +37,19 @@
                 Text="Login"
                 TextColor="White"
                 VerticalOptions="EndAndExpand"/>
-        </StackLayout>
+            </StackLayout>
+            <busyindicator:SfBusyIndicator  
+                AnimationType="Gear"
+                AbsoluteLayout.LayoutBounds=".5,.5,.5,.5"
+                AbsoluteLayout.LayoutFlags="All"
+                BackgroundColor="Silver"
+                HorizontalOptions="Center"
+                TextColor="White"
+                IsVisible="{Binding IsRunning}"
+                Title="Loading..."
+                VerticalOptions="Center"
+                ViewBoxWidth="80"
+                ViewBoxHeight="80" />
+        </AbsoluteLayout>
     </ScrollView>
-   
-  
 </ContentPage>
