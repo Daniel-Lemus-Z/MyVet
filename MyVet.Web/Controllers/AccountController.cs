@@ -33,11 +33,11 @@ namespace MyVet.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login (LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var result =  await _userHelper.LoginAsync(model);
+                var result = await _userHelper.LoginAsync(model);
                 if (result.Succeeded)
                 {
                     if (Request.Query.Keys.Contains("ReturnUrl"))
@@ -99,6 +99,11 @@ namespace MyVet.Web.Controllers
             }
 
             return BadRequest();
+        }
+
+        public IActionResult NotAuthorized()
+        {
+            return View();
         }
 
     }
